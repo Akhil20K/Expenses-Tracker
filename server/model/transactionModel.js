@@ -2,20 +2,17 @@ import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema(
     {
+        // Referencing another Mongoose Object - User
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
-        type: {
-            type: String,
-            required: true,
-            enum: ["income", "expense"],
-        },
+        // Referencing another Mongoose Object - Category
         category: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
             required: true,
-            default: "Uncategorized",
         },
         amount: {
             type: Number,

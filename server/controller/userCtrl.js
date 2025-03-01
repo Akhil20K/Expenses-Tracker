@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import validator from 'validator';
 
 const userController = {
+    // Register a User
     register: asyncHandler(async(req, res) => {
         const { username, email, password } = req.body;
         // Validate Entries
@@ -34,6 +35,7 @@ const userController = {
             id: newUser._id,
         });
     }),
+    // Login the User
     login: asyncHandler(async(req, res) => {
         const { user, password } = req.body;
         var userLogin;
@@ -59,7 +61,7 @@ const userController = {
             throw new Error('Password is Incorrect!');
         }
         // Generate a Token
-        const token = jwt.sign({ id: userLogin._id }, 'akhil', {
+        const token = jwt.sign({ id: userLogin._id }, process.env.JWT_SECRET, {
             expiresIn: "7d",
         })
         res.json({
@@ -70,6 +72,7 @@ const userController = {
             email: userLogin.email,
         })
     }),
+    // Profile of the User
     profile: asyncHandler(async(req, res) => {
         // Find the User by Id send by the Authenticator based on the Token of User
         const user = await User.findById(req.user);
@@ -82,6 +85,7 @@ const userController = {
             email: user.email,
         })
     }),
+    // Change the Password of the User
     changePassword: asyncHandler(async(req, res) => {
         const { oldPassword, newPassword } = req.body;
         const user = await User.findById(req.user);
@@ -102,6 +106,7 @@ const userController = {
             message: "Password Changed Successfully",
         })
     }),
+    // Update the profile of the user after validating password again
     updateProfile: asyncHandler(async(req, res) => {
         const passwod = req.body.password;
         const email = req.body.email;

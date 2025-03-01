@@ -4,7 +4,7 @@ const isAuthenticated = async (req, res, next) => {
     const headerObj = req.headers;
     const token = headerObj?.authorization?.split(' ')[1];
     // Validate the token
-    const verifyToken = jwt.verify(token, 'akhil', (err, decoded) => {
+    const verifyToken = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if(err){
             return false; // So that the flow ends
         }
@@ -12,6 +12,7 @@ const isAuthenticated = async (req, res, next) => {
             return decoded;
         }
     })
+    // If the token is vaid then pass out the user for Authentication
     if(verifyToken){
         req.user = verifyToken.id;
         next();
