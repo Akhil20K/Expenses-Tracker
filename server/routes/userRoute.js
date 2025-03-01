@@ -1,0 +1,10 @@
+import express from 'express';
+import userController from '../controller/userCtrl.js';
+import isAuthenticated from '../middleware/isAuth.js';
+const userRouter = express.Router();
+userRouter.post('/register', userController.register);
+userRouter.post('/login', userController.login);
+userRouter.get('/profile', isAuthenticated, userController.profile);
+userRouter.put('/change-password', isAuthenticated, userController.changePassword);
+userRouter.put('/update-profile', isAuthenticated, userController.updateProfile);
+export default userRouter;
