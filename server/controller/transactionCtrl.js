@@ -43,7 +43,19 @@ const transactionController = {
     // List all the transactions of the User
     lists: asyncHandler(async(req, res) => {
         const listTransactions = await Transaction.find({ user: req.user });
-        res.status(200).json(listTransactions);
+        const returnList = [];
+        for(const x of listTransactions) {
+            const category = await Category.findById(x.category);
+            const transaction = new Object();
+            transaction._id = x._id;
+            transaction.name = category?.name;
+            transaction.type = category?.type;
+            transaction.amount = x.amount;
+            transaction.date = x.date;
+            transaction.description = x.description;
+            returnList.push(transaction);
+        }
+        res.status(200).json(returnList);
     }),
     // Filtering the transactions of the User
     getFilteredTransactions: asyncHandler(async(req, res) => {
@@ -60,7 +72,7 @@ const transactionController = {
         if(categoryname !== "All" || categorytype){
             let categoryQuery = {};
             if(categoryname && categoryname !== "All"){
-                categoryQuery.name = categoryname.toLowerCase();
+                categoryQuery.name = categoryname;
             }
             if(categorytype){
                 categoryQuery.type = categorytype;
@@ -85,7 +97,6 @@ const transactionController = {
         if(transaction && String(transaction.user) === String(req.user)){
             // Pick the category if it's needed to be updated
             const category = await Category.findOne({ name: req.body.categoryname.toLowerCase() });
-            console.log(category);
             transaction.category = category || transaction.category;
             transaction.amount = req.body.amount || transaction.amount;
             transaction.date = req.body.date || transaction.date;

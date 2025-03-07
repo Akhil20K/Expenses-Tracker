@@ -1,11 +1,12 @@
 // UI State management - Has the reducers which have actions to manage global state
 import { createSlice } from '@reduxjs/toolkit';
-
+import { getUserFromStorage } from '../../utils/getUserFromStorage.js';
+const user = getUserFromStorage();
 // Initial State
 const authSlice = createSlice({
     name: 'auth', // Type of action u want to take
     initialState: {
-        user: null,
+        user: user,
     },
     reducers: {
         loginAction: (state, action) => {

@@ -43,7 +43,7 @@ const userController = {
         if(!validator.isEmail(user)){
             const userExists = await User.findOne({ username: user });
             if(!userExists){
-                throw new Error('User is not registered with this Username');
+                throw new Error(`User is not registered with Username: ${user}`);
             }
             userLogin = userExists;
         }
@@ -51,14 +51,14 @@ const userController = {
         else{
             const userExists = await User.findOne({ email: user });
             if(!userExists){
-                throw new Error('User is not registered with this Email');
+                throw new Error(`User is not registered with Email: ${user}`);
             }
             userLogin = userExists;
         }
         // Validate the password
         const isMatch = await bcrypt.compare(password, userLogin.password);
         if(!isMatch){
-            throw new Error('Password is Incorrect!');
+            throw new Error('Incorrect Password!');
         }
         // Generate a Token
         const token = jwt.sign({ id: userLogin._id }, process.env.JWT_SECRET, {
@@ -108,7 +108,7 @@ const userController = {
     }),
     // Update the profile of the user after validating password again
     updateProfile: asyncHandler(async(req, res) => {
-        const passwod = req.body.password;
+        const password = req.body.password;
         const email = req.body.email;
         const username = req.body.username;
         if(!email && !username){
@@ -119,11 +119,6 @@ const userController = {
             if(!validator.isEmail(email)){
                 throw new Error('Please enter a valid email');
             }
-        }
-        // Validate Password
-        const isMatch = await bcrypt.compare(passwod, user.password);
-        if(!isMatch){
-            throw new Error('Password is Incorrect!');
         }
         const user = await User.findById(req.user);
         if(!user){

@@ -7,28 +7,47 @@ import {
   FaRegCommentDots,
   FaWallet,
 } from "react-icons/fa";
+import AlertMessage from "../alert/AlertMessage";
 import { SiDatabricks } from "react-icons/si";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { addCategoryAPI } from "../../services/category/categoryServices";
 
 const validationSchema = Yup.object({
   name: Yup.string()
-    .required("Category name is required")
-    .oneOf(["income", "expense"]),
+    .required("Category name is required"),
   type: Yup.string()
     .required("Category type is required")
     .oneOf(["income", "expense"]),
 });
 
 const AddCategory = () => {
+  const navigate = useNavigate();
+  const { mutateAsync, isSuccess, isError, error } = useMutation({
+    mutationFn: addCategoryAPI,
+    mutationKey: ["addCategory"],
+  })
   const formik = useFormik({
     initialValues: {
       type: "",
       name: "",
     },
-    onSubmit: (values) => {},
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      mutateAsync(values)
+        .then((data) => {
+          console.log(data);
+        })
+        .catch(e => { console.log(e) });
+    },
   });
-
+  useEffect(() => {
+      setTimeout(() => {
+        if(isSuccess){
+          navigate("/categories");
+        }
+      }, 1000)
+    })
   return (
     <form
       onSubmit={formik.handleSubmit}

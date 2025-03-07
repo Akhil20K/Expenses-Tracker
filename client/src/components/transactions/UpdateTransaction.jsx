@@ -7,20 +7,62 @@ import {
   FaRegCommentDots,
   FaWallet,
 } from "react-icons/fa";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import AlertMessage from "../alert/AlertMessage";
+import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { listCategoryAPI } from "../../services/category/categoryServices";
+import { updateTransactionAPI } from "../../services/transactions/transactionServices";
 
 const validationSchema = Yup.object({
-  type: Yup.string()
-    .required("Transaction type is required")
-    .oneOf(["income", "expense"]),
   amount: Yup.number()
     .required("Amount is required")
     .positive("Amount must be positive"),
-  category: Yup.string().required("Category is required"),
-  date: Yup.date().required("Date is required"),
+  category: Yup.string(),
+  date: Yup.date(),
   description: Yup.string(),
 });
 
-const TransactionForm = () => {
+const UpdateTransaction = () => {
+  const { id } = useParams();
+  const { data } = useQuery({
+    queryFn: listCategoryAPI,
+    queryKey: ['list-category'],
+  })
+  // For navigation to Dashboard 
+  const navigate = useNavigate();
+  // Mutation - To send the values from the formik to the userServices
+  const { mutateAsync, isSuccess, isError, error } = useMutation({
+    mutationFn: updateTransactionAPI,
+    mutationKey: ["updateTransaction"],
+  })
+  // Form state management and validations from Yup
+  const formik = useFormik({
+    initialValues: {
+      amount: "",
+      category: "",
+      date: "",
+      description: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      const data = {
+        ...values, id
+      }
+      mutateAsync(data)
+        .then((data) => console.log(data))
+        .catch(e => console.log(e));
+    }
+  })
+  // Redirect after adding transaction
+  useEffect(() => {
+    setTimeout(() => {
+      if(isSuccess){
+        navigate("/dashboard");
+      }
+    }, 1000)
+  })
   return (
     <form
       onSubmit={formik.handleSubmit}
@@ -28,35 +70,26 @@ const TransactionForm = () => {
     >
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-gray-800">
-          Transaction Details
+          Update Transaction Details
         </h2>
         <p className="text-gray-600">Fill in the details below.</p>
       </div>
       {/* Display alert message */}
-
-      {/* Transaction Type Field */}
-      <div className="space-y-2">
-        <label
-          htmlFor="type"
-          className="flex gap-2 items-center text-gray-700 font-medium"
-        >
-          <FaWallet className="text-blue-500" />
-          <span>Type</span>
-        </label>
-        <select
-          {...formik.getFieldProps("type")}
-          id="type"
-          className="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          <option value="">Select transaction type</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        {formik.touched.type && formik.errors.type && (
-          <p className="text-red-500 text-xs">{formik.errors.type}</p>
-        )}
-      </div>
-
+      {isError && (
+        <AlertMessage
+          type="error"
+          message={
+            error?.response?.data?.message ||
+            "Something happened please try again later"
+          }
+        />
+      )}
+      {isSuccess && (
+        <AlertMessage
+          type="success"
+          message="Transaction updated successfully, redirecting..."
+        />
+      )}
       {/* Amount Field */}
       <div className="flex flex-col space-y-1">
         <label htmlFor="amount" className="text-gray-700 font-medium">
@@ -87,6 +120,10 @@ const TransactionForm = () => {
           className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
         >
           <option value="">Select a category</option>
+          {/* <option value="expense">Expense</option> */}
+          {data?.map((category) => (
+            <option key={category?._id} value={category?.name}>{category?.name}</option>
+          ))}
         </select>
         {formik.touched.category && formik.errors.category && (
           <p className="text-red-500 text-xs italic">
@@ -137,10 +174,10 @@ const TransactionForm = () => {
         type="submit"
         className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
       >
-        Submit Transaction
+        Update Transaction
       </button>
     </form>
   );
 };
 
-export default TransactionForm;
+export default UpdateTransaction;

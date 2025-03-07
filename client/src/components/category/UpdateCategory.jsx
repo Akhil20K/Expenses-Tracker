@@ -7,9 +7,11 @@ import {
   FaRegCommentDots,
   FaWallet,
 } from "react-icons/fa";
+import AlertMessage from "../alert/AlertMessage";
 import { SiDatabricks } from "react-icons/si";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import { updateCategoryAPI } from "../../services/category/categoryServices";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -21,14 +23,34 @@ const validationSchema = Yup.object({
 });
 
 const UpdateCategory = () => {
+  // For getting Parameters
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { mutateAsync, isSuccess, isError, error } = useMutation({
+    mutationFn: updateCategoryAPI,
+    mutationKey: ["updateCategory"],
+  });
   const formik = useFormik({
     initialValues: {
       type: "",
       name: "",
     },
-    onSubmit: (values) => {},
+    onSubmit: (values) => {
+      const data = {
+        ...values, id
+      }
+      mutateAsync(data)
+        .then((data) => console.log(data))
+        .catch(e => console.log(e));
+    },
   });
-
+  useEffect(() => {
+    setTimeout(() => {
+      if(isSuccess){
+        navigate("/categories");
+      }
+    }, 1000)
+  })
   return (
     <form
       onSubmit={formik.handleSubmit}
@@ -41,7 +63,7 @@ const UpdateCategory = () => {
         <p className="text-gray-600">Fill in the details below.</p>
       </div>
       {/* Display alert message */}
-      {/* {isError && (
+      {isError && (
         <AlertMessage
           type="error"
           message={
@@ -55,7 +77,7 @@ const UpdateCategory = () => {
           type="success"
           message="Category updated successfully, redirecting..."
         />
-      )} */}
+      )}
       {/* Category Type */}
       <div className="space-y-2">
         <label

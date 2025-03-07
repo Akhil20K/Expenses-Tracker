@@ -1,9 +1,18 @@
 import React from "react";
-import { FaUserCircle, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUserCircle, FaEnvelope, FaLock, FaKey } from "react-icons/fa";
 import { useFormik } from "formik";
 import UpdatePassword from "./UpdatePassword";
+import { useLocation } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { getUserFromStorage } from "../../utils/getUserFromStorage";
+import { updateUserAPI } from "../../services/users/userServices";
 
 const UserProfile = () => {
+  const { mutateAsync, isPending, isSuccess, isError, error } = useMutation({
+    mutationFn: updateUserAPI,
+    mutationKey: ["updateUser"],
+  })
+  const user = getUserFromStorage();
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -12,15 +21,19 @@ const UserProfile = () => {
 
     //Submit
     onSubmit: (values) => {
-      console.log(values);
+      mutateAsync(values)
+        .then((data) => {
+          console.log(data);
+        })
+        .catch(e => {console.log(e)})
     },
   });
   return (
     <>
       <div className="max-w-4xl mx-auto my-10 p-8 bg-white rounded-lg shadow-md">
         <h1 className="mb-2 text-2xl text-center font-extrabold">
-          Welcome Masynctech
-          <span className="text-gray-500 text-sm ml-2">info@gmail.com</span>
+          Welcome { user?.username.charAt(0).toUpperCase() +
+                      user?.username.slice(1) }
         </h1>
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
           Update Profile

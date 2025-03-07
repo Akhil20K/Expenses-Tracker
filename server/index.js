@@ -5,6 +5,7 @@ import transactionRouter from './routes/transactionRoute.js';
 import mongoose from 'mongoose';
 import errorHandler from './middleware/errorHandler.js';
 import dotenv from 'dotenv';
+import cors from 'cors';
 dotenv.config();
 const app = express();
 
@@ -14,6 +15,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((e) => console.log(e));
 
 // Middlewares
+app.use(cors());
 app.use(express.json()); // Passes incoming JSON data
 app.use('/', userRouter);
 app.use('/', categoryRouter);

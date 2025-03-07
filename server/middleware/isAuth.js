@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 const isAuthenticated = async (req, res, next) => {
     // Grab the token from the header
     const headerObj = req.headers;
+
     const token = headerObj?.authorization?.split(' ')[1];
     // Validate the token
     const verifyToken = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -12,7 +13,8 @@ const isAuthenticated = async (req, res, next) => {
             return decoded;
         }
     })
-    // If the token is vaid then pass out the user for Authentication
+    // If the token is vaid then pass out the user for Authentication\
+    // console.log(verifyToken);
     if(verifyToken){
         req.user = verifyToken.id;
         next();

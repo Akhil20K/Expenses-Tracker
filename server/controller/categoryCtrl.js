@@ -39,7 +39,10 @@ const categoryController = {
     // Show the list of categories
     lists: asyncHandler(async(req, res) => {
         const listCategories = await Category.find({ user: req.user });
-        res.status(200).json(listCategories);
+        if(!listCategories){
+            throw new Error('No categories found');
+        }
+        res.json(listCategories);
     }),
     // Update the Category by its id
     update: asyncHandler(async(req, res) => {
