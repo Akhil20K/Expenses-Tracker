@@ -3,9 +3,9 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 import { IoLogOutOutline } from "react-icons/io5";
-import { SiAuthy } from "react-icons/si";
 import { logoutAction } from "../../redux/slice/authSlice";
 import { useDispatch } from 'react-redux';
+import { IoIosAnalytics } from "react-icons/io";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -41,7 +41,7 @@ export default function PrivateNavbar() {
                 </div>
                 <div className="flex flex-shrink-0 items-center">
                   {/* Logo */}
-                  <SiAuthy className="h-8 w-auto text-green-500" />
+                  <IoIosAnalytics className="h-10 w-auto" />
                 </div>
                 <div className="hidden md:ml-6 md:flex md:space-x-8">
                   <Link
